@@ -1,109 +1,82 @@
+let firstNumber = 0;
+let secondNumber = 0;
 let buffer = "0";
 let operator = "";
-let firstNumber = null;
-let secondNumber = null;
-let hasOperator = false;
-let hasDecimal = false; 
-const MAX_LENGTH = 11;
-
-function operate() {
-    switch (operator) {
-        case "÷": 
-            if (secondNumber === 0) {
-                return "Error";
-            }
-            return firstNumber / secondNumber;
-        case "x":
-            return firstNumber * secondNumber;
-        case "-":
-            return firstNumber - secondNumber;
-        case "+":
-            return firstNumber + secondNumber;
-        default:
-            return buffer;
-    }
-}
 
 const screen = document.querySelector(".screen");
 const buttons = document.querySelectorAll(".row div");
 
+function operate(first, second) {
+    switch (operator) {
+        case "÷":
+            if(second === 0) {
+                return "Error";
+            }
+            else {
+                return Math.round(first / second);
+            }
+        case "x":
+            return first * second;
+        case "-":
+            return first - second;
+        case "+":
+            return first + second;
+    }
+}
+
 buttons.forEach((button) => {
     button.addEventListener("click", () => {
-        if (button.classList.contains("clear")) {
-            buffer = "0";
-            firstNumber = null;
-            secondNumber = null;
-            operator = "";
-            hasOperator = false;
-            hasDecimal = false;
-            screen.textContent = buffer;
-        } 
-        else if (button.classList.contains("delete")) {
-            if (buffer[buffer.length - 1] === operator) {
-                hasOperator = false;
-            } else if (buffer[buffer.length - 1] === ".") {
-                hasDecimal = false; 
-            }
-            buffer = buffer.length === 1 ? "0" : buffer.slice(0, -1);
-            screen.textContent = buffer;
-        } 
-        else if (button.classList.contains("equal")) {
-            if (hasOperator && !buffer.endsWith(operator) && !buffer.endsWith('.')) {
-                const parts = buffer.split(operator === "÷" ? "÷" : operator);
-                if (parts.length === 2) {
-                    firstNumber = parseFloat(parts[0]);
-                    secondNumber = parseFloat(parts[1]);
-        
-                    if (!isNaN(secondNumber)) {
-                        let result = operate();
-                        if (result === "Error") {
-                            buffer = "Error"; 
-                        } else {
-                            if (Number(result) === result && result % 1 !== 0) {
-                                result = result.toFixed(2); 
-                            }
-                            buffer = result.toString().slice(0, MAX_LENGTH);
-                            hasDecimal = buffer.includes(".");
-                        }
-                        screen.textContent = buffer;
-                    }
-                }
-                firstNumber = null;
-                secondNumber = null;
+        switch (button.className) {
+            case "clear": 
+                firstNumber = 0;
+                secondNumber = 0;
+                buffer = "0";
+                screen.textContent = buffer;
                 operator = "";
-                if(buffer.includes('.')) {
-                    hasOperator = true;
-                }
-                hasDecimal = false;
-            }
-        }
-        else if (button.classList.contains("operator")) {
-            if (!hasOperator) {
-                firstNumber = parseFloat(buffer);
-                operator = button.textContent;
-                if (buffer.length < MAX_LENGTH) {
-                    buffer += operator; 
+                break;
+            case "delete": 
+                if(parseInt(buffer) !== 0) {
+                    buffer = buffer.substring(0, buffer.length - 1);
                     screen.textContent = buffer;
                 }
-                hasOperator = true;
-                hasDecimal = false; 
-            }
-        } 
-        else { 
-            if (buffer === "0" && button.textContent !== ".") {
-                buffer = button.textContent; 
-            } 
-            else if (buffer.length < MAX_LENGTH && buffer != "Error" && buffer != "NaN") {
-                if (button.classList.contains("decimal")) {
-                    if (!hasDecimal) {
-                        buffer += button.textContent; 
-                        hasDecimal = true;
-                    }
-                } else {
-                    buffer += button.textContent;
+                if(buffer === "") {
+                    buffer = "0";
+                    screen.textContent = buffer;
                 }
-            }
-            screen.textContent = buffer;
+                break;
+            case "operator":
+                if(operator === "" && buffer !== "Error") {
+                    operator = button.textContent;
+                    firstNumber = parseInt(buffer);
+                    buffer = operator;
+                    screen.textContent = buffer;
+                }
+                break;
+            case "equal":
+                secondNumber = parseInt(buffer);
+                buffer = operate(firstNumber, secondNumber).toString();
+                if(buffer.length >= 10) {
+                    buffer = "Error";
+                    firstNumber = 0;
+                }
+                else {
+                    firstNumber = parseInt(buffer);
+                }
+                screen.textContent = buffer;
+                secondNumber = 0;
+                operator = "";
+                break;
+            default:
+                if(buffer.length <= 10 ) {
+                    if(["Error", "0", "+", "-", "x", "÷"].some(element => buffer.includes(element))) {
+                        buffer = button.textContent;
+                    }
+                    else {
+                        buffer += button.textContent;
+                    }
+                    screen.textContent = buffer;
+                }
+                break;
         }
     });
 });
