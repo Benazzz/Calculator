@@ -17,8 +17,8 @@ body {
 }
 
 .container {
-    width: auto;
     height: auto;
+    width: auto;
     background-color: rgb(180, 179, 179);
     border-radius: 25px;
     border: 7px solid rgb(0, 0, 0);
@@ -44,10 +44,10 @@ body {
 
 .row  {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
 }
 
-.row .equal {
+.equal, .clear {
     flex-grow: 2;
 }
 
